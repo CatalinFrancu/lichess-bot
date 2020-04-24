@@ -46,7 +46,7 @@ fake_think_time: false       # artificially slow down the bot to pretend like it
 move_overhead: 2000          # increase if your bot flags games too often
 
 # if defined, print the greeting in player chat at the beginning of each game
-greeting: "Greetings! This is an antichess game, not a standard chess game. If you wish, you can abort the game before the first move."
+# greeting: "Greetings!"
 
 challenge:                   # incoming challenges
   concurrency: 1             # number of games to play simultaneously
