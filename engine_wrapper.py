@@ -125,6 +125,14 @@ class UCIEngine(EngineWrapper):
     def get_stats(self):
         return self.get_handler_stats(self.engine.info_handlers[0].info, ["depth", "nps", "nodes", "score"])
 
+    def get_kibitz(self):
+        info = self.engine.info_handlers[0].info
+        str = info.get("string", "")
+        if str.startswith("kibitz "):
+            return str[7:]
+        else:
+            return None
+
 
 class XBoardEngine(EngineWrapper):
 

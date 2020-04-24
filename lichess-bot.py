@@ -152,11 +152,15 @@ def play_game(li, game_id, control_queue, engine_factory, user_profile, config, 
 
     ponder_uci = None
     def ponder_thread_func(game, engine, board, wtime, btime, winc, binc):
-        global ponder_results        
+        global ponder_results
         best_move , ponder_move = engine.search_with_ponder(board, wtime, btime, winc, binc, True)
         ponder_results[game.id] = ( best_move , ponder_move )
 
     engine.set_time_control(game)
+
+    greeting = config.get("greeting")
+    if greeting is not None:
+      li.chat(game.id, 'player', greeting)
 
     if len(board.move_stack) < 2:
         while not terminated:
@@ -186,6 +190,7 @@ def play_game(li, game_id, control_queue, engine_factory, user_profile, config, 
                 logger.info("Searching for wtime {} btime {}".format(wtime, btime))
                 best_move , ponder_move = engine.search_with_ponder(board, wtime, btime, game.state["winc"], game.state["binc"])
                 engine.print_stats()
+                forward_kibitz(game, engine, li)
             else:
                 best_move = book_move
 
@@ -231,6 +236,7 @@ def play_game(li, game_id, control_queue, engine_factory, user_profile, config, 
                             ponder_thread = None
                             best_move , ponder_move = ponder_results[game.id]
                             engine.print_stats()
+                            forward_kibitz(game, engine, li)
                         else:
                             engine.engine.stop()
                             ponder_thread.join()
@@ -252,6 +258,7 @@ def play_game(li, game_id, control_queue, engine_factory, user_profile, config, 
                                 logger.info("Searching for wtime {} btime {}".format(wtime, btime))
                                 best_move , ponder_move = engine.search_with_ponder(board, wtime, btime, upd["winc"], upd["binc"])
                                 engine.print_stats()
+                                forward_kibitz(game, engine, li)
                             else:
                                 best_move = book_move
                         else:
@@ -316,6 +323,7 @@ def play_first_move(game, engine, board, li):
         # need to hardcode first movetime since Lichess has 30 sec limit.
         best_move = engine.first_search(board, 10000)
         engine.print_stats()
+        forward_kibitz(game, engine, li)
         li.make_move(game.id, best_move)
         return True
     return False
@@ -388,6 +396,14 @@ def update_board(board, move):
     uci_move = chess.Move.from_uci(move)
     board.push(uci_move)
     return board
+
+# Forwards an engine kibitz to both chat rooms.
+# An engine kibitz is a pre-bestmove info string of the form "info string kibitz <str>"
+def forward_kibitz(game, engine, li):
+    kib = engine.get_kibitz()
+    if kib is not None:
+        li.chat(game.id, 'spectator', kib)
+        li.chat(game.id, 'player', kib)
 
 def intro():
     return r"""

@@ -45,6 +45,9 @@ abort_time: 20               # time to abort a game in seconds when there is no 
 fake_think_time: false       # artificially slow down the bot to pretend like it's thinking
 move_overhead: 2000          # increase if your bot flags games too often
 
+# if defined, print the greeting in player chat at the beginning of each game
+greeting: "Greetings! This is an antichess game, not a standard chess game. If you wish, you can abort the game before the first move."
+
 challenge:                   # incoming challenges
   concurrency: 1             # number of games to play simultaneously
   sort_by: "best"            # possible values: "best", "first"
